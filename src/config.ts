@@ -1,6 +1,7 @@
 export const SITE = {
   title: 'Deepak Kumar',
-  description: 'Notes from a DevOps engineer on cloud decisions, outages and fixing things in production.',
+  description: 'Cloud, DevOps and AI, written from production: which service to pick, why systems break, and what AI actually changes for engineers.',
+  tagline: 'DevOps, cloud and AI',
   author: 'Deepak Kumar',
   linkedin: 'https://www.linkedin.com/in/deepakkumar2o',
   github: 'https://github.com/deepakkumar-platform',

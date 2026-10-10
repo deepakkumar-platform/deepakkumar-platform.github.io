@@ -3,7 +3,7 @@
 // LinkedIn follow prompt in the same spot, so the layout doesn't change later.
 import { NEWSLETTER, SITE } from '../config';
 interface Props { text?: string }
-const { text = 'A new post every week or so, on LinkedIn first. Cloud decisions, outages, and what I would change in my own setup.' } = Astro.props;
+const { text = 'Every post goes out on LinkedIn first. Follow for cloud decisions, outage breakdowns, and AI tools tested on real DevOps work.' } = Astro.props;
 const on = NEWSLETTER.enabled && NEWSLETTER.action;
 ---
 <aside class="follow">

@@ -13,7 +13,9 @@ export async function getStaticPaths() {
 }
 interface Props { post: Post; newer?: Post; older?: Post }
 const { post, newer, older } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+const sections = headings.filter((h) => h.depth === 2);
+const url = new URL(`/${post.id}/`, Astro.site).href;
 const { title, description, date, updated, image, tags } = post.data;
 const jsonLd = {
   '@context': 'https://schema.org', '@type': 'BlogPosting', headline: title, description,
@@ -32,6 +34,12 @@ const jsonLd = {
       </p>
       <p class="lede">{description}</p>
     </header>
+    {sections.length >= 4 && (
+      <details class="toc">
+        <summary>In this post</summary>
+        <ol>{sections.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+      </details>
+    )}
     <div class="prose">
       <Content />
     </div>
@@ -40,8 +48,34 @@ const jsonLd = {
         {tags.map((t) => <li><a href={`/tags/${tagSlug(t)}/`}>{t}</a></li>)}
       </ul>
     )}
+    <div class="share">
+      <a class="button ghost" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`} target="_blank" rel="noopener">Share on LinkedIn</a>
+      <button class="button ghost" type="button" data-copy={url}>Copy link</button>
+      <span class="share-status" aria-live="polite"></span>
+    </div>
   </article>
   <Newsletter />
+  <script>
+    const status = document.querySelector('.share-status');
+    const say = (msg: string) => { if (status) { status.textContent = msg; setTimeout(() => (status.textContent = ''), 2500); } };
+    document.querySelector<HTMLButtonElement>('[data-copy]')?.addEventListener('click', async (e) => {
+      try { await navigator.clipboard.writeText((e.currentTarget as HTMLElement).dataset.copy!); say('Link copied.'); }
+      catch { say('Copy failed. Select the address bar and copy from there.'); }
+    });
+    // A copy button on every code block: readers paste commands straight into a terminal.
+    for (const pre of document.querySelectorAll<HTMLPreElement>('.prose pre')) {
+      const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'copy-code', textContent: 'Copy' });
+      btn.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(pre.querySelector('code')?.innerText ?? pre.innerText); btn.textContent = 'Copied'; }
+        catch { btn.textContent = 'Copy failed'; }
+        setTimeout(() => (btn.textContent = 'Copy'), 2000);
+      });
+      const wrap = document.createElement('div');
+      wrap.className = 'code-wrap';
+      pre.replaceWith(wrap);
+      wrap.append(pre, btn);
+    }
+  </script>
   <nav class="pager" aria-label="More posts">
     {older ? <a href={`/${older.id}/`}><span>Older</span>{older.data.title}</a> : <span />}
     {newer && <a href={`/${newer.id}/`} style="text-align:right"><span>Newer</span>{newer.data.title}</a>}

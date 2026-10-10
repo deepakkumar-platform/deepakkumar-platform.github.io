@@ -9,7 +9,7 @@ import { SITE } from '../config';
 // wide: grid pages (home, tags). Reading pages keep the narrow text column.
 interface Props { title?: string; description?: string; image?: string; type?: 'website' | 'article'; wide?: boolean }
 const { title, description = SITE.description, image = SITE.ogImage, type = 'website', wide = false } = Astro.props;
-const fullTitle = title ? `${title} | ${SITE.title}` : `${SITE.title}: ${SITE.description}`;
+const fullTitle = title ? `${title} | ${SITE.title}` : `${SITE.title}: ${SITE.tagline}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image, Astro.site);
 const path = Astro.url.pathname;
@@ -52,7 +52,7 @@ const path = Astro.url.pathname;
       <a href="/about/" aria-current={path === '/about/' ? 'page' : undefined}>About</a>
       <form class="site-search" action="/articles/" role="search">
         <label class="visually-hidden" for="site-q">Search posts</label>
-        <input id="site-q" name="q" type="search" placeholder="Search" />
+        <input id="site-q" name="q" type="search" placeholder="Search…" spellcheck="false" />
         <a class="search-link" href="/articles/" aria-label="Search posts">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         </a>
@@ -67,7 +67,7 @@ const path = Astro.url.pathname;
     <slot />
   </main>
   <footer class="site-foot">
-    <p>Written by Deepak Kumar, DevOps engineer. Multi-cloud infra, Terraform, Kubernetes and CI/CD.</p>
+    <p>Written by Deepak Kumar, DevOps engineer. Multi-cloud infra, Terraform, Kubernetes, CI/CD, and the AI tools that are starting to sit alongside them.</p>
     <ul class="socials">
       <li><a href={SITE.linkedin}>LinkedIn</a></li>
       <li><a href={SITE.github}>GitHub</a></li>
@@ -82,6 +82,13 @@ const path = Astro.url.pathname;
       const dark = root.dataset.theme !== 'dark';
       if (dark) root.dataset.theme = 'dark'; else delete root.dataset.theme;
       localStorage.setItem('theme', dark ? 'dark' : 'light');
+    });
+    // "/" jumps to search, like most docs sites.
+    addEventListener('keydown', (e) => {
+      const t = e.target as HTMLElement;
+      if (e.key !== '/' || e.metaKey || e.ctrlKey || t.closest('input, textarea, [contenteditable]')) return;
+      const box = document.querySelector<HTMLInputElement>('#q') ?? document.querySelector<HTMLInputElement>('#site-q');
+      if (box && box.offsetParent) { e.preventDefault(); box.focus(); } else { location.href = '/articles/'; }
     });
   </script>
 </body>

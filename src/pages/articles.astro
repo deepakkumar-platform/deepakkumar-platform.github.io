@@ -6,13 +6,13 @@ import { getPosts, allTags, tagSlug, longDate } from '../lib';
 const posts = await getPosts();
 const tags = allTags(posts);
 ---
-<Base title="All articles" description="Everything on the blog: cloud decisions, outages and production lessons.">
+<Base title="All articles" description="Everything on the blog: cloud, DevOps and AI, from production.">
   <header class="post-head">
     <h1>All articles</h1>
   </header>
   <div class="finder" role="search">
     <label for="q">Search posts</label>
-    <input id="q" type="search" placeholder="Try Terraform, DNS or outages" autocomplete="off" />
+    <input id="q" type="search" placeholder="Try Terraform, DNS or AI…" autocomplete="off" spellcheck="false" />
   </div>
   <ul class="tags" aria-label="Filter by topic">
     {tags.map((t) => <li><a href={`/tags/${t.slug}/`}>{t.label}</a></li>)}
