@@ -1,0 +1,53 @@
+---
+// Every post in one list, with a search box and topic filter that run in the browser.
+// The list is plain HTML, so it still works with JavaScript off.
+import Base from '../layouts/Base.astro';
+import { getPosts, allTags, tagSlug, longDate } from '../lib';
+const posts = await getPosts();
+const tags = allTags(posts);
+---
+<Base title="All articles" description="Everything on the blog: cloud decisions, outages and production lessons.">
+  <header class="post-head">
+    <h1>All articles</h1>
+  </header>
+  <div class="finder" role="search">
+    <label for="q">Search posts</label>
+    <input id="q" type="search" placeholder="Try Terraform, DNS or outages" autocomplete="off" />
+  </div>
+  <ul class="tags" aria-label="Filter by topic">
+    {tags.map((t) => <li><a href={`/tags/${t.slug}/`}>{t.label}</a></li>)}
+  </ul>
+  <p class="finder-status" aria-live="polite"></p>
+  <ol class="archive">
+    {posts.map((p) => (
+      <li data-search={[p.data.title, p.data.description, ...p.data.tags].join(' ').toLowerCase()} data-tags={p.data.tags.map(tagSlug).join(' ')}>
+        <h2><a href={`/${p.id}/`}>{p.data.title}</a></h2>
+        <p>{p.data.description}</p>
+        <time datetime={p.data.date.toISOString()}>{longDate(p.data.date)}</time>
+      </li>
+    ))}
+  </ol>
+  <script>
+    const input = document.querySelector<HTMLInputElement>('#q')!;
+    const items = [...document.querySelectorAll<HTMLLIElement>('.archive li')];
+    const status = document.querySelector('.finder-status')!;
+    const params = new URLSearchParams(location.search);
+    input.value = params.get('q') ?? '';
+
+    const apply = () => {
+      const words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+      let shown = 0;
+      for (const li of items) {
+        const hit = words.every((w) => li.dataset.search!.includes(w));
+        li.hidden = !hit;
+        if (hit) shown++;
+      }
+      status.textContent = !words.length ? '' : shown ? `${shown} of ${items.length} posts match.` : 'No posts match. Try a shorter word or pick a topic.';
+      const url = new URL(location.href);
+      if (input.value) url.searchParams.set('q', input.value); else url.searchParams.delete('q');
+      history.replaceState(null, '', url);
+    };
+    input.addEventListener('input', apply);
+    apply();
+  </script>
+</Base>

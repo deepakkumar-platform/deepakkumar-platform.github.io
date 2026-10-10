@@ -1,0 +1,8 @@
+---
+import { STATS, N, pct, tCount } from './data';
+interface Props { k: 'change' | 'hardware' | 'dns' | 'cert' | 'automation' | 'azure' | 'n' | 'known' | 'unknown'; as?: 'n' | 'pct' | 'pctKnown'; trigger?: string }
+const { k, as = 'n', trigger } = Astro.props;
+const v = trigger ? tCount(trigger) : k === 'n' ? N : STATS[k];
+const out = as === 'pct' ? `${pct(v)}%` : as === 'pctKnown' ? `${pct(v, STATS.known)}%` : String(v);
+---
+{out}

@@ -1,0 +1,16 @@
+---
+import { perSource, durations, SOURCES, SOURCE_RULE, LABELS } from './data';
+interface Props { kind: 'source' | 'duration' }
+const { kind } = Astro.props;
+---
+{kind === 'source' ? (
+  <table>
+    <thead><tr><th>Provider</th><th>Reports</th><th>Started by a change</th><th>Hardware</th><th>What I included</th></tr></thead>
+    <tbody>{perSource.map((p) => (<tr><td>{SOURCES[p.s]}</td><td>{p.n}</td><td><b>{p.change}%</b></td><td>{p.hw}</td><td>{SOURCE_RULE[p.s]}</td></tr>))}</tbody>
+  </table>
+) : (
+  <table>
+    <thead><tr><th>What started it</th><th>Median duration</th><th>Reports with a duration</th></tr></thead>
+    <tbody>{durations.map((d) => (<tr><td>{LABELS[d.k]}</td><td><b>{d.med.toFixed(1)} hours</b></td><td>{d.n}</td></tr>))}</tbody>
+  </table>
+)}

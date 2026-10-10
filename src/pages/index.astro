@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
+import Newsletter from '../components/Newsletter.astro';
+import { getPosts, allTags } from '../lib';
+const posts = await getPosts();
+const [latest, ...rest] = posts;
+const recent = rest.slice(0, 6);
+const tags = allTags(posts);
+---
+<Base wide>
+  <section class="hero">
+    <h1>What changed?</h1>
+    <p>Notes from a DevOps engineer on cloud decisions, outages and fixing things in production.</p>
+  </section>
+
+  {latest ? <PostCard post={latest} featured /> : <p>The first post is on its way.</p>}
+
+  {recent.length > 0 && (
+    <section aria-labelledby="recent">
+      <h2 id="recent" class="section-title">More writing</h2>
+      <div class="grid">{recent.map((p) => <PostCard post={p} />)}</div>
+      {rest.length > recent.length && <p class="all-link"><a href="/articles/">All {posts.length} articles</a></p>}
+    </section>
+  )}
+
+  <Newsletter />
+
+  {tags.length > 0 && (
+    <section aria-labelledby="topics">
+      <h2 id="topics" class="section-title">Topics</h2>
+      <ul class="tags">{tags.map((t) => <li><a href={`/tags/${t.slug}/`}>{t.label}</a></li>)}</ul>
+    </section>
+  )}
+</Base>

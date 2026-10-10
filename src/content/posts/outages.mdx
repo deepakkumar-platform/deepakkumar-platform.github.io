@@ -1,0 +1,95 @@
+---
+title: "It's not always DNS. I read 173 cloud outage reports."
+description: "Every public post-mortem I could find from AWS, Azure, Google Cloud, Cloudflare and GitHub. 58% started with a change the provider made. DNS was involved in 10%."
+date: 2026-10-13
+tags: [sre, outages, cloud]
+image: /og-outages.png
+---
+import Stat from '../../components/outages/Stat.astro';
+import Headline from '../../components/outages/Headline.astro';
+import Bars from '../../components/outages/Bars.astro';
+import Exhibit from '../../components/outages/Exhibit.astro';
+import Tables from '../../components/outages/Tables.astro';
+import Explorer from '../../components/outages/Explorer.astro';
+
+The reports run from 2011 to 2026. Official provider reports only, no news write-ups. For each one I copied the root-cause line word for word and tagged what started it. Here's what came out.
+
+<Headline />
+
+## The short version
+
+We spend most of our resilience budget on dead hardware. Multi-AZ, replicas, failover. That's sensible, and it's probably why hardware only started 1 in 6 of these outages.
+
+The bigger killer is us. Config pushes, maintenance steps and deploys started <Stat k="change" /> of <Stat k="n" />. Where the report made it clear either way, that's <Stat k="change" as="pctKnown" />. And DNS, the meme, showed up in <Stat k="dns" />.
+
+## What started each outage
+
+One trigger per outage: the first thing that went wrong, in the provider's own words.
+
+<Bars />
+
+## Six outages worth reading in full
+
+The numbers tell you what. These tell you how. Every quote is copied from the provider's report.
+
+<Exhibit source="aws" date="2017-02-28" title="One wrong input">
+The playbook was right. The person was authorised. One argument was wrong, and nothing stopped the command from removing more than it should. Tools that remove capacity need a ceiling they refuse to go past.
+</Exhibit>
+
+<Exhibit source="gcp" date="2025-06-12" title="Blank fields, everywhere, in seconds">
+This is the one redundancy can't save you from. Replication did its job perfectly: it copied the bad data to every region. Config and policy data need the same staged rollout code gets.
+</Exhibit>
+
+<Exhibit source="cloudflare" date="2025-11-18" title="A permissions change that doubled a file">
+Nobody touched the bot system. A database permissions change upstream changed what a query returned, and a file downstream doubled. Your blast radius includes everything that reads your output.
+</Exhibit>
+
+<Exhibit source="aws" date="2025-10-19" title="The DNS one wasn't really about DNS">
+Yes, DNS was where it showed up. But the record went empty because of a race in the automation that manages it, and the automation then failed to repair it. Even in the famous DNS outage, the cause was one layer below.
+</Exhibit>
+
+<Exhibit source="aws" date="2020-11-25" title="A small capacity add">
+AWS's own words: the trigger, not the root cause. A routine, small change pushed every server in the fleet past an operating system thread limit. Small changes aren't safe changes. They're just changes nobody watches.
+</Exhibit>
+
+<Exhibit source="cloudflare" date="2019-07-02" title="One WAF rule, every CPU core">
+A non-emergency rule went out worldwide with no staged rollout. One of Cloudflare's fixes afterwards: roll out rules in stages, the same way they roll out software.
+</Exhibit>
+
+## Three more numbers
+
+- **<Stat k="automation" /> of <Stat k="n" />** involved automation: the scaling job, the DNS manager, the config pipeline. The tools we trust to make changes safe were part of the failure.
+- **<Stat k="cert" /> of <Stat k="n" />** involved a certificate. Expiry, a missed rotation, or a service that never picked up the new cert.
+- **Hardware outages last longest.** When a change breaks things you can roll it back. When a data centre loses cooling, you wait.
+
+<Tables kind="duration" />
+
+## Is it just Azure?
+
+Azure publishes the most reports, so it's <Stat k="azure" /> of the <Stat k="n" />. Fair question. Here's every provider on its own:
+
+<Tables kind="source" />
+
+The lowest is still 44%. And at every single provider, change beats hardware.
+
+## What I'd do on Monday
+
+1. **Treat config like code.** Review it, version it, and roll it out one region (or one cell) at a time. Two of the worst ones here, Google Cloud in June 2025 and Cloudflare in 2019, were a push that reached everywhere at once.
+2. **Make rollback one command, and practise it.** Nobody learns rollback during the outage.
+3. **Put a ceiling on your automation.** A script that removes servers or scales capacity should refuse to touch more than a set share of the fleet without a human.
+4. **Watch what reads your output.** Your change can be fine and still break the system downstream that consumes it.
+5. **Ask one question first on every incident call:** what changed in the last 2 hours? Keep the change log where on-call can see it.
+
+## How I built this, and what it can't tell you
+
+- **Only published reports.** Providers write these for big, customer-facing incidents. This is big-outage data, not every blip.
+- **Fixed rules, no cherry-picking.** The provider table says exactly what I included from each one. My first Azure pass picked 25 of 84 reports and skipped power events, which pushed "change" to about 76%. I redid it with every final report and got 62%.
+- **One trigger per outage is a judgement call.** Every row below has the quote and the link, so you can check mine.
+- **Checked against the source.** I re-opened 20 random reports and matched the quotes word for word. All 20 matched.
+- Some older Cloudflare post-mortems may be missing. Google Cloud only counts incidents that state a cause.
+
+## All 173 reports
+
+Search, filter, and open any report. Or take the data: [CSV](/data/cloud-outages-173.csv), [JSON](/data/cloud-outages-173.json).
+
+<Explorer />

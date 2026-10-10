@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+
+# Local only: notes, setup and Claude skills stay off GitHub
+README.md
+CLAUDE.md
+DESIGN.md
+.claude/

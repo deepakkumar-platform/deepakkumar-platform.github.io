@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+---
+<Base title="About" description="Deepak Kumar is a DevOps engineer writing about cloud decisions and production lessons.">
+  <header class="post-head"><h1>About</h1></header>
+  <div class="prose">
+    <p>I'm Deepak Kumar, a DevOps engineer. I run multi-cloud infrastructure across Azure, AWS, GCP and OpenStack with Terraform, Kubernetes and CI/CD, and I'm doing an M.Tech in Cloud Computing at IIT Patna on weekends.</p>
+    <p>I write here about the decisions that matter in real systems: which service when, why things break, and what I'd change afterwards. Everything I quote links to its source.</p>
+    <p>I also maintain <a href="https://github.com/deepakkumar-platform/DevOps-Learn-By-Doing">DevOps-Learn-By-Doing</a>, hands-on labs with 1.3K stars on GitHub.</p>
+    <p>Want a resume review or help with a project? <a href={SITE.topmate}>Book a 1:1 on Topmate</a>. Or say hello on <a href={SITE.linkedin}>LinkedIn</a>.</p>
+  </div>
+</Base>

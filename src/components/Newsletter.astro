@@ -1,0 +1,20 @@
+---
+// The email box. Until NEWSLETTER is switched on in src/config.ts, it shows the
+// LinkedIn follow prompt in the same spot, so the layout doesn't change later.
+import { NEWSLETTER, SITE } from '../config';
+interface Props { text?: string }
+const { text = 'A new post every week or so, on LinkedIn first. Cloud decisions, outages, and what I would change in my own setup.' } = Astro.props;
+const on = NEWSLETTER.enabled && NEWSLETTER.action;
+---
+<aside class="follow">
+  <p>{on ? 'Get the next post by email. ' : ''}{text}</p>
+  {on ? (
+    <form class="newsletter" action={NEWSLETTER.action} method="post" target="_blank">
+      <label class="visually-hidden" for="nl-email">Email address</label>
+      <input id="nl-email" type="email" name={NEWSLETTER.emailField} required autocomplete="email" placeholder="you@example.com" />
+      <button class="button" type="submit">Subscribe</button>
+    </form>
+  ) : (
+    <a class="button" href={SITE.linkedin}>Follow on LinkedIn</a>
+  )}
+</aside>

@@ -1,0 +1,16 @@
+---
+import { find, SOURCES } from './data';
+interface Props { source: string; date: string; title: string }
+const { source, date, title } = Astro.props;
+const r = find(source, date);
+const when = new Date(date + 'T00:00:00Z').toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+---
+<section class="exhibit">
+  <h3>{title}</h3>
+  <p class="from">{SOURCES[source]}, {when}</p>
+  <blockquote>
+    <p>{r.root_cause_quote}</p>
+    <cite><a href={r.url}>Read {SOURCES[source]}'s full report</a></cite>
+  </blockquote>
+  <slot />
+</section>

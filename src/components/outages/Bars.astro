@@ -1,0 +1,37 @@
+---
+import { byTrigger, LABELS, CHANGE_KEYS, pct, STATS } from './data';
+const rows = byTrigger.filter(([k]) => k !== 'unknown');
+const max = rows[0][1];
+---
+<figure class="ol-bars">
+  <table>
+    <caption>What started each of the outages, one trigger per report</caption>
+    <tbody>
+      {rows.map(([k, n]) => (
+        <tr>
+          <th scope="row">{LABELS[k]}</th>
+          <td class="ol-track"><span class:list={['ol-fill', { 'ol-chg': CHANGE_KEYS.has(k) }]} style={`width:${(100 * n) / max}%`} /></td>
+          <td class="ol-n">{n} <small>{pct(n)}%</small></td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <figcaption>
+    <span class="ol-key ol-chg" /> a change the provider made <span class="ol-key" /> everything else.
+    The {STATS.change} total counts a change anywhere in the chain, so it isn't the amber bars added up. {STATS.unknown} report gave no cause.
+  </figcaption>
+</figure>
+<style>
+  .ol-bars table { width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 0.95rem; display: table !important; }
+  .ol-bars caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .ol-bars th { font-weight: 500; color: var(--ink) !important; width: 38%; padding: 0.3rem 0.8rem 0.3rem 0 !important; border: 0 !important; white-space: nowrap; }
+  .ol-bars td { padding: 0.3rem 0 !important; border: 0 !important; }
+  .ol-track { width: 50%; }
+  .ol-fill { display: block; height: 1.3rem; border-radius: 3px; background: var(--rule); }
+  .ol-fill.ol-chg, .ol-key.ol-chg { background: var(--signal); }
+  .ol-n { padding-left: 0.7rem !important; font-weight: 700; white-space: nowrap; }
+  .ol-n small { font-weight: 400; color: var(--graphite); }
+  .ol-key { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 2px; background: var(--rule); vertical-align: -1px; margin-left: 0.6rem; }
+  .ol-key:first-child { margin-left: 0; }
+  @media (max-width: 36rem) { .ol-bars th { white-space: normal; width: 45%; font-size: 0.85rem; } }
+</style>

@@ -1,0 +1,16 @@
+---
+import { STATS, pct } from './data';
+---
+<div class="ol-stats">
+  <p><b class="ol-amber">{STATS.change}</b> started with a change the provider made ({pct(STATS.change)}%)</p>
+  <p><b>{STATS.hardware}</b> started with hardware, power or fibre ({pct(STATS.hardware)}%)</p>
+  <p><b class="ol-dim">{STATS.dns}</b> involved DNS at all ({pct(STATS.dns)}%)</p>
+</div>
+<style>
+  .ol-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-block: 2rem !important; padding-block: 1.25rem; border-block: 1px solid var(--rule); }
+  .ol-stats p { margin: 0; font-family: var(--sans); font-size: 0.95rem; line-height: 1.35; color: var(--graphite); }
+  .ol-stats b { display: block; font-family: var(--serif); font-size: 3rem; line-height: 1; font-weight: 650; color: var(--ink); margin-bottom: 0.4rem; letter-spacing: -0.03em; }
+  .ol-stats .ol-amber { color: var(--signal); }
+  .ol-stats .ol-dim { color: var(--graphite); }
+  @media (max-width: 36rem) { .ol-stats { grid-template-columns: 1fr; gap: 1rem; } .ol-stats b { display: inline; font-size: 2.2rem; margin-right: 0.4rem; } }
+</style>

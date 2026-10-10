@@ -1,0 +1,21 @@
+---
+// One post in the home grid or a tag page. Posts without an `image` get a title card
+// drawn in CSS, so the grid never shows a grey placeholder.
+import { longDate, readingMinutes, type Post } from '../lib';
+interface Props { post: Post; featured?: boolean }
+const { post, featured = false } = Astro.props;
+const { title, description, date, image, tags } = post.data;
+const href = `/${post.id}/`;
+---
+<article class:list={['card', { featured }]}>
+  <a class="thumb" href={href} tabindex="-1" aria-hidden="true">
+    {image
+      ? <img src={image} alt="" width="1200" height="627" loading={featured ? 'eager' : 'lazy'} decoding="async" />
+      : <span class="title-card"><span>{title}</span>{tags[0] && <small>{tags[0]}</small>}</span>}
+  </a>
+  <div class="card-body">
+    <h2><a href={href}>{title}</a></h2>
+    {featured && <p class="card-desc">{description}</p>}
+    <p class="card-meta"><time datetime={date.toISOString()}>{longDate(date)}</time>, {readingMinutes(post.body)} min read</p>
+  </div>
+</article>

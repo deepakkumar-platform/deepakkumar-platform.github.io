@@ -1,0 +1,64 @@
+---
+import { ROWS, LABELS, SOURCES, N } from './data';
+const rows = ROWS.map((r) => ({ s: SOURCES[r.source], d: r.date, t: r.title, u: r.url, h: r.duration_hours, tr: LABELS[r.trigger], c: r.change_triggered, dns: r.dns_involved, q: r.root_cause_quote }));
+---
+<div class="ox">
+  <div class="ox-filters" role="search">
+    <label class="ox-q"><span class="ox-sr">Search</span><input id="ox-q" type="search" placeholder="Search titles and causes, try certificate or typo" /></label>
+    <label><span class="ox-sr">Provider</span><select id="ox-s"><option value="">All providers</option>{Object.values(SOURCES).map((v) => <option>{v}</option>)}</select></label>
+    <label><span class="ox-sr">Trigger</span><select id="ox-t"><option value="">All triggers</option>{Object.values(LABELS).map((v) => <option>{v}</option>)}</select></label>
+  </div>
+  <p class="ox-count" id="ox-count" aria-live="polite">{N} of {N} reports</p>
+  <div id="ox-rows"></div>
+  <script type="application/json" id="ox-data" set:html={JSON.stringify(rows).replace(/</g, '\\u003c')} />
+</div>
+<script>
+  type Row = { s: string; d: string; t: string; u: string; h: number | null; tr: string; c: boolean | null; dns: boolean; q: string };
+  const R: Row[] = JSON.parse(document.getElementById('ox-data')!.textContent!);
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const q = $<HTMLInputElement>('ox-q'), s = $<HTMLSelectElement>('ox-s'), t = $<HTMLSelectElement>('ox-t');
+  const box = $('ox-rows'), count = $('ox-count');
+  const el = (tag: string, cls?: string, text?: string) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+  function draw() {
+    const term = q.value.trim().toLowerCase();
+    const m = R.filter((r) => (!s.value || r.s === s.value) && (!t.value || r.tr === t.value) && (!term || (r.t + ' ' + r.q).toLowerCase().includes(term)));
+    count.textContent = `${m.length} of ${R.length} reports`;
+    box.replaceChildren(...m.map((r) => {
+      const d = el('details', 'ox-row');
+      const sum = el('summary');
+      sum.append(el('span', 'ox-d', r.d), el('span', 'ox-s', r.s), el('span', 'ox-t', r.t), el('span', r.c ? 'ox-tag ox-chg' : 'ox-tag', r.tr));
+      const quote = el('blockquote'); quote.append(el('p', '', r.q));
+      const meta = el('p', 'ox-meta', [r.h ? `${r.h} hours` : '', r.dns ? 'DNS involved' : ''].filter(Boolean).join(', ') + ' ');
+      const a = el('a', '', 'Open the report') as HTMLAnchorElement; a.href = r.u; meta.append(a);
+      d.append(sum, quote, meta);
+      return d;
+    }));
+    if (!m.length) box.append(el('p', 'ox-meta', 'No reports match. Clear the search or pick another filter.'));
+  }
+  [q, s, t].forEach((x) => x.addEventListener('input', draw));
+  draw();
+</script>
+<style>
+  .ox { font-family: var(--sans); font-size: 0.95rem; line-height: 1.5; }
+  .ox-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .ox-q { flex: 1 1 16rem; }
+  .ox-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .ox input, .ox select { width: 100%; font: inherit; color: var(--ink); background: var(--raised); border: 1px solid var(--rule); border-radius: 8px; padding: 0.6rem 0.8rem; }
+  .ox-count { color: var(--graphite); font-size: 0.85rem; margin: 0.8rem 0 0.4rem; }
+  .ox-row { border-bottom: 1px solid var(--rule); padding: 0.6rem 0; }
+  .ox-row summary { cursor: pointer; display: grid; grid-template-columns: 6.5rem 6.5rem 1fr auto; gap: 0.75rem; align-items: baseline; list-style: none; }
+  .ox-row summary::-webkit-details-marker { display: none; }
+  .ox-row[open] summary .ox-t { font-weight: 600; }
+  .ox-d { color: var(--graphite); font-variant-numeric: tabular-nums; }
+  .ox-s { font-weight: 600; }
+  .ox-tag { font-size: 0.78rem; padding: 0.1rem 0.55rem; border-radius: 999px; border: 1px solid var(--rule); color: var(--graphite); white-space: nowrap; }
+  .ox-tag.ox-chg { border-color: var(--signal); color: var(--ink); background: var(--signal-soft); }
+  .ox-row blockquote { margin: 0.7rem 0 0.3rem; padding-left: 1rem; border-left: 3px solid var(--signal); font-family: var(--serif); font-size: 1rem; }
+  .ox-row blockquote p { margin: 0; }
+  .ox-meta { color: var(--graphite); font-size: 0.85rem; margin: 0.3rem 0 0; }
+  @media (max-width: 40rem) {
+    .ox-row summary { grid-template-columns: auto 1fr; }
+    .ox-t { grid-column: 1 / -1; }
+    .ox-tag { justify-self: start; grid-column: 1 / -1; }
+  }
+</style>

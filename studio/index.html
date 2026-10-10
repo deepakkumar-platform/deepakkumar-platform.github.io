@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Studio</title>
+  <link rel="stylesheet" href="/studio.css" />
+</head>
+<body>
+  <aside class="side">
+    <div class="side-head">
+      <b>Studio</b>
+      <button id="new" class="btn">New post</button>
+    </div>
+    <ul id="list" class="list"></ul>
+    <p class="git" id="git"></p>
+  </aside>
+
+  <section class="work" id="work" hidden>
+    <header class="bar">
+      <div class="file"><span id="file"></span> <span id="dirty" class="dirty" hidden>Unsaved</span></div>
+      <div class="actions">
+        <label class="btn ghost">Add image<input id="img" type="file" accept="image/*" hidden /></label>
+        <button id="save" class="btn ghost" title="Ctrl+S">Save</button>
+        <button id="publish" class="btn primary">Publish</button>
+      </div>
+    </header>
+    <div class="panes">
+      <textarea id="src" spellcheck="true" aria-label="Markdown"></textarea>
+      <article id="preview" class="preview" aria-label="Preview"></article>
+    </div>
+  </section>
+
+  <section class="empty" id="empty">
+    <h1>Pick a post on the left, or start a new one.</h1>
+    <p>Posts are Markdown files in <code>src/content/posts</code>. Publish builds the site, commits your posts and images, and pushes to GitHub. The live site updates about a minute later.</p>
+  </section>
+
+  <dialog id="newdlg">
+    <form method="dialog" id="newform">
+      <h2>New post</h2>
+      <label>Title<input name="title" required autocomplete="off" /></label>
+      <label>One-line summary<input name="description" required autocomplete="off" /></label>
+      <label>Web address<span class="hint">deepakkumar-platform.github.io/<b id="slugview">...</b>/</span><input name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" required /></label>
+      <p class="error" id="newerr"></p>
+      <menu><button value="cancel" formnovalidate class="btn ghost">Cancel</button><button value="ok" class="btn primary">Create post</button></menu>
+    </form>
+  </dialog>
+
+  <dialog id="pubdlg">
+    <form method="dialog">
+      <h2>Publish</h2>
+      <label>What changed<input id="msg" placeholder="Add post: It's not always DNS" /></label>
+      <ol id="steps" class="steps"></ol>
+      <menu><button value="cancel" class="btn ghost" id="pubclose">Close</button><button id="pubgo" type="button" class="btn primary">Publish now</button></menu>
+    </form>
+  </dialog>
+
+  <script type="module" src="/studio.js"></script>
+</body>
+</html>
